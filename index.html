@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frascos na Shopee</title>
+<meta name="description" content="Passo a passo pra lançar a venda dos frascos de festa na Shopee, com a conta do kit e o anúncio pronto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+  /* ---- reset enxuto ---- */
+  html{color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+
+  /* Layout: coluna única de cartões, cabeçalho fixo com barra de progresso; acento rosé que puxa pro frasco coração. */
+  :root{
+    --bg:#faf7f8; --surface:#ffffff; --fg:#1b1420; --muted:#6b5f6a;
+    --border:#ece4e9; --accent:#d6336c; --accent-weak:#fbe4ee; --accent-fg:#ffffff;
+    --good:#2f9e44; --good-weak:#e7f6ec; --warn:#b4690e; --warn-weak:#fdf1e0;
+    --danger:#c92a2a; --danger-weak:#fcebeb;
+    --display:"Space Grotesk",system-ui,sans-serif;
+    --body:"Inter",system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#141017; --surface:#1e1821; --fg:#f3ecf1; --muted:#a99fa8;
+    --border:#2e2630; --accent:#ff6aa0; --accent-weak:#3a1f2c; --accent-fg:#1b1420;
+    --good:#51cf66; --good-weak:#15271a; --warn:#e8a94b; --warn-weak:#2c2113;
+    --danger:#ff8787; --danger-weak:#2c1616; color-scheme:dark;
+  }}
+  body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+  header.top{position:sticky;top:0;z-index:15;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    padding-top:env(safe-area-inset-top,0px)}
+  .top .wrap{padding-block:12px}
+  .brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);flex:none}
+  h1{font-family:var(--display);font-size:1.15rem;font-weight:700;margin:0;letter-spacing:-.01em}
+  .brand .sub{color:var(--muted);font-size:.82rem;margin-left:auto}
+  .progress{height:7px;border-radius:99px;background:var(--border);margin-top:10px;overflow:hidden}
+  .progress>i{display:block;height:100%;width:0;background:var(--accent);
+    transition:width .35s ease;border-radius:99px}
+  .progress-label{font-size:.76rem;color:var(--muted);margin-top:6px}
+
+  main .wrap{padding-block:22px 48px;display:flex;flex-direction:column;gap:20px}
+
+  .lead{color:var(--muted);font-size:.96rem;margin:2px 0 0}
+  .lead b{color:var(--fg);font-weight:600}
+
+  section.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:18px 16px 16px;display:flex;flex-direction:column;gap:12px}
+  .phase-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .phase-tag{font-family:var(--display);font-weight:700;font-size:.72rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-weak);
+    padding:3px 9px;border-radius:99px}
+  h2{font-family:var(--display);font-size:1.12rem;font-weight:600;margin:0;letter-spacing:-.01em;
+    text-wrap:balance;min-width:0}
+  .phase-when{color:var(--muted);font-size:.8rem;margin-left:auto}
+
+  ul.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  ul.checks li{display:flex;gap:11px;padding:9px 6px;border-radius:10px;align-items:flex-start;
+    cursor:pointer;user-select:none}
+  ul.checks li:hover{background:var(--accent-weak)}
+  .box{flex:none;width:21px;height:21px;border-radius:6px;border:2px solid var(--border);
+    margin-top:1px;display:grid;place-items:center;transition:.15s;background:var(--bg)}
+  .box svg{width:13px;height:13px;stroke:var(--accent-fg);stroke-width:3.2;fill:none;
+    opacity:0;transform:scale(.5);transition:.15s}
+  li.done .box{background:var(--accent);border-color:var(--accent)}
+  li.done .box svg{opacity:1;transform:scale(1)}
+  li.done .ct{color:var(--muted)}
+  li.done .ct b{text-decoration:line-through;text-decoration-color:var(--muted)}
+  .ct{min-width:0}
+  .ct b{font-weight:600;display:block}
+  .ct span{color:var(--muted);font-size:.86rem;display:block;margin-top:1px}
+
+  .note{border-radius:12px;padding:11px 13px;font-size:.88rem;display:flex;gap:9px;align-items:flex-start}
+  .note .ico{flex:none;font-size:1rem;line-height:1.3}
+  .note.good{background:var(--good-weak)} .note.good .ico{color:var(--good)}
+  .note.warn{background:var(--warn-weak)} .note.warn .ico{color:var(--warn)}
+  .note.danger{background:var(--danger-weak)} .note.danger .ico{color:var(--danger)}
+  .note b{font-weight:600}
+
+  .tbl{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:380px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  th{font-family:var(--display);font-weight:600;font-size:.76rem;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--muted);background:var(--bg)}
+  tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums;text-align:right}
+  td.hl{color:var(--good);font-weight:600}
+  tr.best td{background:var(--good-weak)}
+
+  .draft{background:var(--bg);border:1px dashed var(--border);border-radius:12px;padding:13px}
+  .draft h4{margin:0 0 4px;font-family:var(--display);font-size:.72rem;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--muted)}
+  .draft .copytext{font-size:.9rem;white-space:pre-wrap;word-break:break-word}
+  .copybtn{margin-top:10px;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;
+    background:var(--accent);color:var(--accent-fg);border:none;border-radius:9px;
+    padding:8px 14px}
+  .copybtn:active{filter:brightness(.94)}
+  .ph{color:var(--accent);font-weight:600}
+
+  .mini{font-size:.8rem;color:var(--muted)}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap}
+  .kpi .item{flex:1 1 120px;min-width:0;background:var(--bg);border:1px solid var(--border);
+    border-radius:12px;padding:11px 12px}
+  .kpi .item .v{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em}
+  .kpi .item .k{font-size:.76rem;color:var(--muted);margin-top:1px}
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  footer{color:var(--muted);font-size:.78rem;text-align:center;padding-block:4px 10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Frascos na Shopee</h1>
+      <span class="sub" id="pct">0% feito</span>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="progress-label" id="plabel">0 de 0 passos concluídos</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <p class="lead">Seu passo a passo pra vender os frascos de festa (SopinPet) na Shopee, do zero.
+    Marque cada item conforme fizer — ele fica salvo neste aparelho. <b>Não precisa saber nada antes:
+    cada passo diz o que fazer e por quê.</b></p>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Antes de tudo</span>
+        <h2>O essencial em 3 frases</h2>
+      </div>
+      <div class="note good"><span class="ico">✓</span><div>Dá pra começar <b>só com o CPF</b>, de graça, sem CNPJ e sem nota fiscal.</div></div>
+      <div class="note warn"><span class="ico">!</span><div>A Shopee cobra <b>uma % + uma taxa fixa por venda</b>. Por isso <b>venda em KIT</b> (10/20/50 un), nunca 1 frasco avulso.</div></div>
+      <div class="note danger"><span class="ico">●</span><div>Venda o <b>frasco vazio</b> (embalagem). Vender cheio (perfume, doce) entra na regra da Anvisa — fuja disso no começo.</div></div>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Fase 0</span>
+        <h2>Preparar — sem gastar nada</h2>
+        <span class="phase-when">hoje / esta semana</span>
+      </div>
+      <ul class="checks" data-key="f0"></ul>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Dinheiro</span>
+        <h2>A conta do kit (quanto sobra)</h2>
+      </div>
+      <p class="mini">Exemplo real: <b>kit de 50 frascos coração</b> vendido a <b>R$ 54,90</b>, já tirando
+      a taxa da Shopee (~R$ 15) e a embalagem (~R$ 2). A linha verde é o preço que vale a pena brigar com o fornecedor.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Custo do frasco</th><th>Custo do kit (50)</th><th>Lucro no kit</th><th>Margem</th></tr></thead>
+          <tbody>
+            <tr><td>R$ 0,45</td><td class="num">R$ 22,50</td><td class="num">R$ 15,40</td><td class="num">28%</td></tr>
+            <tr><td>R$ 0,40</td><td class="num">R$ 20,00</td><td class="num">R$ 17,90</td><td class="num">33%</td></tr>
+            <tr class="best"><td>R$ 0,35 <span class="mini">c/ tampa</span></td><td class="num">R$ 17,50</td><td class="num hl">R$ 20,40</td><td class="num hl">37%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note danger"><span class="ico">✕</span><div><b>Nunca venda 1 unidade.</b> A taxa fixa (~R$ 4,50 a R$ 7) sozinha é maior que o frasco — você pagaria pra vender.</div></div>
+      <div class="note good"><span class="ico">↓</span><div>Baixar o custo de <b>0,45 → 0,35 com tampa</b> põe <b>~R$ 5 a mais por kit</b> no seu bolso. Vale muito negociar — e confirme se a <b>tampa está inclusa</b>.</div></div>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Fornecedor</span>
+        <h2>Confirmar com o Gabriel antes de comprar</h2>
+      </div>
+      <ul class="checks" data-key="forn"></ul>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Fase 1</span>
+        <h2>Comprar o lote de teste e fotografar</h2>
+        <span class="phase-when">quando a Fase 0 estiver ok</span>
+      </div>
+      <ul class="checks" data-key="f1"></ul>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Fase 2</span>
+        <h2>Criar o anúncio</h2>
+        <span class="phase-when">com os frascos e fotos em mãos</span>
+      </div>
+      <ul class="checks" data-key="f2"></ul>
+
+      <div class="draft">
+        <h4>Título pronto (ajuste o que está em rosa)</h4>
+        <div class="copytext" id="t-titulo">Frasco Coração Plástico <span class="ph">[Xml]</span> Lembrancinha Festa Kit <span class="ph">[10/20/50]</span> un Garrafinha Vazia Doces Slime Areia Colorida Aniversário Casamento</div>
+        <button class="copybtn" data-copy="t-titulo">Copiar título</button>
+      </div>
+
+      <div class="draft">
+        <h4>Descrição pronta</h4>
+        <div class="copytext" id="t-desc">✨ FRASCO CORAÇÃO DE PLÁSTICO — perfeito pra lembrancinha de festa!
+
+Kit com <span class="ph">[quantidade]</span> frascos em formato de coração, prontos pra você encher e personalizar.
+
+📦 O que você recebe:
+• <span class="ph">[quantidade]</span> frascos coração vazios
+• Capacidade: <span class="ph">[X] ml</span>
+• Com tampa <span class="ph">[cor/tipo]</span>
+
+💡 Pra que serve:
+• Lembrancinha de aniversário, casamento, chá de bebê
+• Encher com doces, slime, areia colorida (sand art)
+• Mini aromatizador, confete, bolinhas
+
+✅ Por que comprar da gente:
+• Enviamos rápido e bem embalado
+• Plástico resistente, não quebra como o vidro
+• Atendimento no chat pra qualquer dúvida
+
+Dúvida? Chama aqui que a gente responde rapidinho 💬</div>
+        <button class="copybtn" data-copy="t-desc">Copiar descrição</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Fase 3</span>
+        <h2>Primeira venda</h2>
+        <span class="phase-when">quando cair o primeiro pedido</span>
+      </div>
+      <ul class="checks" data-key="f3"></ul>
+      <div class="note good"><span class="ico">★</span><div>Postou no prazo + cliente feliz = <b>avaliação boa</b>. Nos primeiros dias isso vale mais que lucro: é o que faz a Shopee te mostrar pra mais gente.</div></div>
+    </section>
+
+    <section class="card">
+      <div class="phase-head">
+        <span class="phase-tag">Mais pra frente</span>
+        <h2>Quando começar a girar</h2>
+      </div>
+      <div class="kpi">
+        <div class="item"><div class="v">R$ 81 mil</div><div class="k">faturamento/ano no CPF — acima disso a Shopee pede CNPJ</div></div>
+        <div class="item"><div class="v">~R$ 76/mês</div><div class="k">MEI: te dá CNPJ, baixa a taxa da Shopee e deixa emitir nota</div></div>
+      </div>
+      <p class="mini">Comece no CPF pra testar barato. Quando vender com constância, o MEI se paga rápido só na economia de taxa.</p>
+    </section>
+
+    <footer>Seu progresso fica salvo só neste navegador. Feito pra começar pequeno e com segurança.</footer>
+  </div>
+</main>
+
+<script>
+  // Conteúdo dos checklists (texto + explicação). Montado em JS pra ficar fácil de editar.
+  const LISTAS = {
+    f0: [
+      ["Criar a conta de vendedor (CPF)", "Entre em seller.shopee.com.br → Cadastrar-se. Use seu telefone, valide o código e escolha “Pessoa Física (CPF)”."],
+      ["Cadastrar uma conta bancária no SEU nome", "Precisa ser do mesmo titular, senão não dá pra receber nem sacar o dinheiro das vendas."],
+      ["Preencher os dados da loja", "Nome da loja, endereço de origem (de onde você posta) e contato."],
+      ["Decidir os tamanhos de kit", "Comece com 2 ou 3 opções: ex. kit 10, kit 25 e kit 50. Kit maior = preço por unidade menor."],
+      ["Definir o preço de cada kit", "Use a tabela da conta do kit aqui embaixo como base. Olhe 2–3 concorrentes antes de fechar."],
+      ["Separar R$ 225 + frete pro primeiro lote", "É o mínimo do fornecedor (500 un). Risco baixo pra testar o mercado."],
+    ],
+    forn: [
+      ["A tampa está inclusa no preço?", "O ponto mais importante. Se a tampa for à parte, seu custo real sobe bastante."],
+      ["Tamanho (ml) do coração e da bola", "Define pra que serve e quanto dá pra cobrar. Peça o número exato."],
+      ["Quanto é o frete até você", "Entra no custo. Pergunte o valor pra sua cidade."],
+      ["Desconto pra volume maior", "Peça cotação de 1.000 e 2.000 un — o unitário quase sempre cai."],
+      ["Pedir amostras", "O Gabriel ofereceu amostras do coração. Aceite: confere qualidade antes de comprar o lote."],
+    ],
+    f1: [
+      ["Fechar a compra do lote de teste", "Só depois de confirmar tampa, tamanho e frete."],
+      ["Tirar fotos boas dos frascos", "Fundo branco, luz do dia perto da janela. A 1ª foto é o que faz o cliente clicar."],
+      ["Fotografar um kit montado", "Mostre a quantidade junta (ex. os 50) — passa ideia de volume e valor."],
+      ["Foto de uso/ideia", "Um frasco cheio de doce ou areia colorida ajuda o cliente a imaginar o uso."],
+      ["Pesar e medir um kit embalado", "Com a embalagem. A Shopee pede peso e medidas pra calcular o frete."],
+    ],
+    f2: [
+      ["Pesquisar palavras-chave", "Digite “frasco coração lembrancinha” na busca da Shopee e veja os termos dos mais vendidos."],
+      ["Escrever o título com a palavra-chave no começo", "Até 120 caracteres. Use o título pronto aqui embaixo como base."],
+      ["Publicar as fotos nítidas", "A melhor foto primeiro. Capriche — foto ruim derruba o anúncio antes da descrição."],
+      ["Colar a descrição", "Use a descrição pronta aqui embaixo, trocando o que está em rosa."],
+      ["Criar as variações (kits)", "Cadastre kit 10 / 25 / 50 como variações, cada um com seu preço."],
+      ["Preencher peso e medidas", "Os que você mediu na Fase 1. Erra aqui = frete errado."],
+      ["Ativar o Frete Grátis", "Hoje é praticamente obrigatório e ajuda a vender. A taxa já entra no preço do kit."],
+      ["Publicar e conferir no celular", "Abra o anúncio como cliente e veja se está bonito e claro."],
+    ],
+    f3: [
+      ["Receber o pedido no app", "Chega notificação na Central do Vendedor."],
+      ["Imprimir a etiqueta que a Shopee gera", "O sistema cria a etiqueta de postagem; é só imprimir."],
+      ["Embalar bem o kit", "Protegido, pra não chegar amassado. Capricho conta na avaliação."],
+      ["Postar DENTRO do prazo", "Leve na agência dos Correios (ou ponto parceiro). Atrasar derruba sua reputação."],
+      ["Marcar como enviado / acompanhar", "O cliente acompanha o rastreio pelo app."],
+    ],
+  };
+
+  const store = {
+    get(){ try{ return JSON.parse(localStorage.getItem("frascos-shopee")||"{}"); }catch(e){ return {}; } },
+    set(v){ try{ localStorage.setItem("frascos-shopee", JSON.stringify(v)); }catch(e){} }
+  };
+  let state = store.get();
+
+  const CHECK = '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>';
+
+  function render(){
+    document.querySelectorAll("ul.checks").forEach(ul=>{
+      const key = ul.dataset.key, itens = LISTAS[key]||[];
+      ul.innerHTML = itens.map((it,i)=>{
+        const id = key+"-"+i, on = !!(state[id]);
+        return '<li class="'+(on?'done':'')+'" data-id="'+id+'" role="button" tabindex="0" aria-pressed="'+on+'">'
+          +'<i class="box">'+CHECK+'</i>'
+          +'<span class="ct"><b>'+it[0]+'</b><span>'+it[1]+'</span></span></li>';
+      }).join("");
+    });
+    updateProgress();
+  }
+
+  function updateProgress(){
+    let total=0, done=0;
+    Object.keys(LISTAS).forEach(k=> LISTAS[k].forEach((_,i)=>{ total++; if(state[k+"-"+i]) done++; }));
+    const pct = total? Math.round(done/total*100):0;
+    document.getElementById("bar").style.width = pct+"%";
+    document.getElementById("pct").textContent = pct+"% feito";
+    document.getElementById("plabel").textContent = done+" de "+total+" passos concluídos";
+  }
+
+  function toggle(li){
+    const id = li.dataset.id;
+    state[id] = !state[id];
+    if(!state[id]) delete state[id];
+    store.set(state);
+    li.classList.toggle("done", !!state[id]);
+    li.setAttribute("aria-pressed", !!state[id]);
+    updateProgress();
+  }
+
+  document.addEventListener("click", function(e){
+    const li = e.target.closest("ul.checks li"); if(li){ toggle(li); return; }
+    const btn = e.target.closest(".copybtn");
+    if(btn){
+      const el = document.getElementById(btn.dataset.copy);
+      const txt = el.innerText;
+      const done = function(){ const o=btn.textContent; btn.textContent="Copiado ✓"; setTimeout(function(){btn.textContent=o;},1600); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(done).catch(function(){selecionar(el,done);});
+      } else selecionar(el,done);
+    }
+  });
+  document.addEventListener("keydown", function(e){
+    if((e.key==="Enter"||e.key===" ") && e.target.closest("ul.checks li")){
+      e.preventDefault(); toggle(e.target.closest("li"));
+    }
+  });
+  function selecionar(el,cb){
+    try{ const r=document.createRange(); r.selectNodeContents(el);
+      const s=getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){}
+    if(cb) cb();
+  }
+
+  render();
+</script>
+</body>
+</html>
